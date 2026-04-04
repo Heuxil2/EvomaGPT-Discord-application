@@ -1,6 +1,0 @@
-discord.py
-python-dotenv
-mysql-connector-python
-aiohttp
-flask
-git+https://github.com/mahtoid/DiscordChatExporterPy
