@@ -7,7 +7,7 @@ import aiohttp
 #  Install scope: applications.commands (user install)
 # ──────────────────────────────────────────────
 
-TOKEN = "YOUR_BOT_TOKEN_HERE"
+TOKEN = "MTQ5MDA0NzQ3MTA0NzU0MDg4Ng.G8kx-Y.gnoBk0rSf0S5sMVD_kA3iB_6c5RPd-GqM8BPVk"
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
