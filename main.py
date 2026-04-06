@@ -3,8 +3,8 @@ from discord import app_commands
 import aiohttp
 from flask import Flask
 from threading import Thread
-
-TOKEN = "MTQ5MDA0NzQ3MTA0NzU0MDg4Ng.G8kx-Y.gnoBk0rSf0S5sMVD_kA3iB_6c5RPd-GqM8BPVk"
+import os
+TOKEN = os.environ.get("DISCORD_TOKEN")
 
 # ════════════════════════════════════════════════
 #  KEEP-ALIVE (for UptimeRobot)
