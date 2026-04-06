@@ -84,7 +84,7 @@ DRAIN_KIT_TEXT = (
     "🐢 ** - No Potions or arrows of the Turtle Master**  *(This item provides little to no benefit outside of the confines of the testing system)*\n"
     "<:anchor:1490522268537847808> ** - 64 Respawn Anchors**  *(This limit is in place to reduce stalling issues with the testing system, with low impact)*\n"
     "🎆 ** - 24 Firework Rockets**  *(This limit is in place to reduce stalling issues with the testing system, with low impact)*\n"
-    "<:chestplate:1490522282139975731> ** - 4 Armor Pieces**  *(This limit is in place to reduce issues with the testing system, with low impact)*"
+    "<:chestplate:1490522282139975731> ** - 4 Armor Pieces**  *(This limit is in place to reduce issues with the testing system, with low impact)*\n\n"
     "=========================================================================\n\n"
     "## <:grass:1490522289450651749> ***Kit items must be obtainable in 1.21+ Vanilla Survival. This applies to all forms of testing.***"
 )
@@ -170,7 +170,7 @@ EVAL_KIT_TEXT = (
     "🐢 ** - No Potions or arrows of the Turtle Master**  *(This item provides little to no benefit outside of the confines of the testing system)*\n"
     "<:anchor:1490522268537847808> ** - 64 Respawn Anchors**  *(This limit is in place to reduce stalling issues with the testing system, with low impact)*\n"
     "🎆 ** - 24 Firework Rockets**  *(This limit is in place to reduce stalling issues with the testing system, with low impact)*\n"
-    "<:chestplate:1490522282139975731> ** - 4 Armor Pieces**  *(This limit is in place to reduce issues with the testing system, with low impact)*"
+    "<:chestplate:1490522282139975731> ** - 4 Armor Pieces**  *(This limit is in place to reduce issues with the testing system, with low impact)*\n\n"
     "=========================================================================\n\n"
     "## <:grass:1490522289450651749> ***Kit items must be obtainable in 1.21+ Vanilla Survival. This applies to all forms of testing.***"
 )
