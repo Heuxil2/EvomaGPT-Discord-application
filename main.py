@@ -1,8 +1,29 @@
 import discord
 from discord import app_commands
 import aiohttp
+from flask import Flask
+from threading import Thread
 
 TOKEN = "MTQ5MDA0NzQ3MTA0NzU0MDg4Ng.G8kx-Y.gnoBk0rSf0S5sMVD_kA3iB_6c5RPd-GqM8BPVk"
+
+# ════════════════════════════════════════════════
+#  KEEP-ALIVE (for UptimeRobot)
+# ════════════════════════════════════════════════
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "EvomaGPT is alive!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.daemon = True
+    t.start()
+
 
 client = discord.Client(intents=discord.Intents.none())
 tree = app_commands.CommandTree(
@@ -620,4 +641,5 @@ async def on_ready():
     print(f"Commands synced globally.")
 
 
+keep_alive()
 client.run(TOKEN)
