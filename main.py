@@ -125,7 +125,9 @@ SERVER_AD_TEXT = """#  <:Ranked_Tiers:1490523311082569909>  **[1.21+] RankedTier
 > <:Gift:1490522959075344424> - Frequent Giveaways
 > <:Promotion:1490522999177347256> - Tier Tagger Mod  <:GreenArrow:1370871862296449025> https://modrinth.com/project/ranked-tiers-tagger
 > <a:fire2:1490522288767111168> - Tier List Website <:GreenArrow:1370871862296449025> [Rankedtiers.net](https://www.rankedtiers.net/)
-> <:Settings:1490523010233270342> - Practice Server: `Rankedtiers.net`
+> <:Settings:1490523010233270342> - Practice Server for EU & NA: 
+EU: `Rankedtiers.net`
+NA: `na.Rankedtiers.net`
 > <:Ranked_Tiers:1490523311082569909> - 7 days Test cooldown
 
 -# <:SeniorTester:1490523009390215208> <:mod:1490522982186221669> <:regulator:1490523004470431794> - Dedicated Mods, Regulators, and Testers to Assist You!
