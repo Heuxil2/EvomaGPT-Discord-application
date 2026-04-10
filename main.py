@@ -152,7 +152,7 @@ async def uuid_cmd(interaction: discord.Interaction, username: str):
                 uuid_raw = data["id"]
                 uuid_formatted = f"{uuid_raw[:8]}-{uuid_raw[8:12]}-{uuid_raw[12:16]}-{uuid_raw[16:20]}-{uuid_raw[20:]}"
                 embed = discord.Embed(
-                    title=f"UUID — {data['name']}",
+                    title=f"UUID -- {data['name']}",
                     color=0xFFD700
                 )
                 embed.add_field(name="Username", value=f"`{data['name']}`", inline=False)
