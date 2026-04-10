@@ -157,7 +157,8 @@ async def uuid_cmd(interaction: discord.Interaction, username: str):
                 )
                 embed.add_field(name="Username", value=f"`{data['name']}`", inline=False)
                 embed.add_field(name="UUID", value=f"`{uuid_formatted}`", inline=False)
-                await interaction.followup.send(embed=embed)
+                copy_text = f"{data['name']} - {uuid_formatted}"
+                await interaction.followup.send(embed=embed, view=make_copy_button(copy_text))
             elif resp.status == 404:
                 await interaction.followup.send(
                     embed=discord.Embed(
