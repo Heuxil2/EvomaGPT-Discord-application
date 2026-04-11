@@ -4,17 +4,15 @@ import aiohttp
 from flask import Flask
 from threading import Thread
 import os
-TOKEN = os.environ.get("DISCORD_TOKEN")
+TOKEN = os.environ.get("MTQ5MDA0NzQ3MTA0NzU0MDg4Ng.Gg7VZj.kKQq86RVJk1sTZjnR3BEJfsL9phzybJ-loVuHE")
 
-# ════════════════════════════════════════════════
-#  KEEP-ALIVE (for UptimeRobot)
-# ════════════════════════════════════════════════
+#  for UptimeRobot
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "EvomaGPT is alive!"
+    return "The bot is online"
 
 def run():
     app.run(host='0.0.0.0', port=8080)
@@ -33,9 +31,7 @@ tree = app_commands.CommandTree(
 )
 
 
-# ════════════════════════════════════════════════
 #  STATIC LINK COMMANDS
-# ════════════════════════════════════════════════
 
 @tree.command(name="discord", description="Get the RankedTiers Discord invite link")
 async def discord_cmd(interaction: discord.Interaction):
@@ -85,9 +81,7 @@ async def ip_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 
-# ════════════════════════════════════════════════
 #  DRAIN KIT RULES
-# ════════════════════════════════════════════════
 
 DRAIN_KIT_TEXT = (
     "## <:shulkerbox:1490522294555250688> **__HT3+ Testing Limits & Rules__** <:shulkerbox:1490522294555250688>\n"
@@ -115,9 +109,7 @@ async def drain_kit_rules_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(DRAIN_KIT_TEXT)
 
 
-# ════════════════════════════════════════════════
 #  SERVER AD
-# ════════════════════════════════════════════════
 
 SERVER_AD_TEXT = """#  <:Ranked_Tiers:1490523311082569909>  **[1.21+] RankedTiers Network | EU & NA Crystal PvP & Tier Testing** <:Ranked_Tiers:1490523311082569909>
 
@@ -139,9 +131,7 @@ async def server_ad_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(SERVER_AD_TEXT)
 
 
-# ════════════════════════════════════════════════
 #  UUID LOOKUP
-# ════════════════════════════════════════════════
 
 @tree.command(name="uuid", description="Look up a Minecraft player's UUID by username")
 @app_commands.describe(username="The Minecraft username to look up")
@@ -177,9 +167,8 @@ async def uuid_cmd(interaction: discord.Interaction, username: str):
                 )
 
 
-# ════════════════════════════════════════════════
 #  EVAL KIT RULES
-# ════════════════════════════════════════════════
+
 
 EVAL_KIT_TEXT = (
     "## <:VerifiedTester:1490523036791603230> **__Tester Evaluation (Below HT3) Limits & Rules__**\n"
@@ -204,9 +193,7 @@ async def eval_kit_rules_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(EVAL_KIT_TEXT)
 
 
-# ════════════════════════════════════════════════
 #  HELPERS
-# ════════════════════════════════════════════════
 
 def win_or_loss(score: str) -> str:
     try:
@@ -249,9 +236,7 @@ def promoted_or_failed(scores: list[str], tier_name: str) -> str:
         return f"**Promoted to {tier_name}**"
 
 
-# ════════════════════════════════════════════════
 #  /HT3
-# ════════════════════════════════════════════════
 
 @tree.command(name="ht3", description="Generate a High Tier 3 result message")
 @app_commands.describe(
@@ -290,9 +275,7 @@ async def ht3_cmd(
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-# ════════════════════════════════════════════════
 #  RESTRICTION FORMAT
-# ════════════════════════════════════════════════
 
 @tree.command(name="restrictionformat", description="Generate a restriction format message")
 @app_commands.describe(
@@ -340,9 +323,7 @@ async def restriction_format_cmd(
     await interaction.followup.send(content=msg, view=make_copy_button(msg))
 
 
-# ════════════════════════════════════════════════
 #  /LT2
-# ════════════════════════════════════════════════
 
 @tree.command(name="lt2", description="Generate a Low Tier 2 result message")
 @app_commands.describe(
@@ -400,9 +381,7 @@ async def lt2_cmd(
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-# ════════════════════════════════════════════════
 #  /HT2
-# ════════════════════════════════════════════════
 
 @tree.command(name="ht2", description="Generate a High Tier 2 result message")
 @app_commands.describe(
@@ -460,9 +439,7 @@ async def ht2_cmd(
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-# ════════════════════════════════════════════════
 #  /LT1
-# ════════════════════════════════════════════════
 
 @tree.command(name="lt1", description="Generate a Low Tier 1 result message")
 @app_commands.describe(
@@ -540,9 +517,7 @@ async def lt1_cmd(
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
-# ════════════════════════════════════════════════
 #  /HT1
-# ════════════════════════════════════════════════
 
 @tree.command(name="ht1", description="Generate a High Tier 1 result message")
 @app_commands.describe(
@@ -631,9 +606,7 @@ async def ht1_cmd(
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
-# ════════════════════════════════════════════════
-#  STARTUP
-# ════════════════════════════════════════════════
+#  start up
 
 @client.event
 async def on_ready():
