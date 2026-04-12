@@ -4,11 +4,13 @@ import aiohttp
 from flask import Flask
 from threading import Thread
 import os
-import time
 import asyncio
+import threading
+import time
+
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
-#  for UptimeRobot
+# Flask pour UptimeRobot / Render
 
 app = Flask(__name__)
 
@@ -16,11 +18,11 @@ app = Flask(__name__)
 def home():
     return "The bot is online"
 
-def run():
+def run_flask():
     app.run(host='0.0.0.0', port=8080)
 
 def keep_alive():
-    t = Thread(target=run)
+    t = Thread(target=run_flask)
     t.daemon = True
     t.start()
 
@@ -33,14 +35,13 @@ tree = app_commands.CommandTree(
 )
 
 
-#  STATIC LINK COMMANDS
+# STATIC LINK COMMANDS
 
 @tree.command(name="discord", description="Get the RankedTiers Discord invite link")
 async def discord_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(
         "Join the RankedTiers community!\n\ndiscord.gg/rankedtiers"
     )
-
 
 @tree.command(name="website", description="Get the RankedTiers tier list website link")
 async def website_cmd(interaction: discord.Interaction):
@@ -51,7 +52,6 @@ async def website_cmd(interaction: discord.Interaction):
     )
     await interaction.response.send_message(embed=embed)
 
-
 @tree.command(name="youtube", description="Get the Evoma YouTube channel link")
 async def youtube_cmd(interaction: discord.Interaction):
     embed = discord.Embed(
@@ -61,7 +61,6 @@ async def youtube_cmd(interaction: discord.Interaction):
     )
     await interaction.response.send_message(embed=embed)
 
-
 @tree.command(name="mod", description="Get the Ranked Tiers Tagger mod link on Modrinth")
 async def mod_cmd(interaction: discord.Interaction):
     embed = discord.Embed(
@@ -70,7 +69,6 @@ async def mod_cmd(interaction: discord.Interaction):
         color=0x1BD96A
     )
     await interaction.response.send_message(embed=embed)
-
 
 @tree.command(name="ip", description="Get the RankedTiers Minecraft server IPs")
 async def ip_cmd(interaction: discord.Interaction):
@@ -83,7 +81,7 @@ async def ip_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 
-#  DRAIN KIT RULES
+# DRAIN KIT RULES
 
 DRAIN_KIT_TEXT = (
     "## <:shulkerbox:1490522294555250688> **__HT3+ Testing Limits & Rules__** <:shulkerbox:1490522294555250688>\n"
@@ -111,7 +109,7 @@ async def drain_kit_rules_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(DRAIN_KIT_TEXT)
 
 
-#  SERVER AD
+# SERVER AD
 
 SERVER_AD_TEXT = """#  <:Ranked_Tiers:1490523311082569909>  **[1.21+] RankedTiers Network | EU & NA Crystal PvP & Tier Testing** <:Ranked_Tiers:1490523311082569909>
 
@@ -133,7 +131,7 @@ async def server_ad_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(SERVER_AD_TEXT)
 
 
-#  UUID LOOKUP
+# UUID LOOKUP
 
 @tree.command(name="uuid", description="Look up a Minecraft player's UUID by username")
 @app_commands.describe(username="The Minecraft username to look up")
@@ -145,31 +143,18 @@ async def uuid_cmd(interaction: discord.Interaction, username: str):
                 data = await resp.json()
                 uuid_raw = data["id"]
                 uuid_formatted = f"{uuid_raw[:8]}-{uuid_raw[8:12]}-{uuid_raw[12:16]}-{uuid_raw[16:20]}-{uuid_raw[20:]}"
-                embed = discord.Embed(
-                    title=f"UUID -- {data['name']}",
-                    color=0xFFD700
-                )
+                embed = discord.Embed(title=f"UUID -- {data['name']}", color=0xFFD700)
                 embed.add_field(name="Username", value=f"`{data['name']}`", inline=False)
                 embed.add_field(name="UUID", value=f"`{uuid_formatted}`", inline=False)
                 copy_text = f"{data['name']} - {uuid_formatted}"
                 await interaction.followup.send(embed=embed, view=make_copy_button(copy_text))
             elif resp.status == 404:
-                await interaction.followup.send(
-                    embed=discord.Embed(
-                        description=f"Player **{username}** not found.",
-                        color=0xFF0000
-                    )
-                )
+                await interaction.followup.send(embed=discord.Embed(description=f"Player **{username}** not found.", color=0xFF0000))
             else:
-                await interaction.followup.send(
-                    embed=discord.Embed(
-                        description="Mojang API error. Try again later.",
-                        color=0xFF0000
-                    )
-                )
+                await interaction.followup.send(embed=discord.Embed(description="Mojang API error. Try again later.", color=0xFF0000))
 
 
-#  EVAL KIT RULES
+# EVAL KIT RULES
 
 EVAL_KIT_TEXT = (
     "## <:VerifiedTester:1490523036791603230> **__Tester Evaluation (Below HT3) Limits & Rules__**\n"
@@ -194,7 +179,7 @@ async def eval_kit_rules_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(EVAL_KIT_TEXT)
 
 
-#  HELPERS
+# HELPERS
 
 def win_or_loss(score: str) -> str:
     try:
@@ -206,7 +191,6 @@ def win_or_loss(score: str) -> str:
     except Exception:
         return score
 
-
 def make_copy_button(copy_text: str) -> discord.ui.View:
     view = discord.ui.View()
 
@@ -216,14 +200,10 @@ def make_copy_button(copy_text: str) -> discord.ui.View:
             self.copy_text = copy_text
 
         async def callback(self, interaction: discord.Interaction):
-            await interaction.response.send_message(
-                f"```\n{self.copy_text}\n```",
-                ephemeral=True
-            )
+            await interaction.response.send_message(f"```\n{self.copy_text}\n```", ephemeral=True)
 
     view.add_item(CopyButton())
     return view
-
 
 def promoted_or_failed(scores: list[str], tier_name: str) -> str:
     last_score = scores[-1] if scores else ""
@@ -237,7 +217,7 @@ def promoted_or_failed(scores: list[str], tier_name: str) -> str:
         return f"**Promoted to {tier_name}**"
 
 
-#  /HT3
+# /HT3
 
 @tree.command(name="ht3", description="Generate a High Tier 3 result message")
 @app_commands.describe(
@@ -260,9 +240,7 @@ async def ht3_cmd(
     scores = [ht3score1]
     if ht3score2:
         scores.append(ht3score2)
-
     result = promoted_or_failed(scores, "High Tier 3")
-
     lines = [
         f"{player.mention} - {ign} - {result}",
         "*Passed Evaluation*",
@@ -271,12 +249,11 @@ async def ht3_cmd(
     ]
     if ht3opponent2 and ht3score2:
         lines.append(f"> {win_or_loss(ht3score2)} vs. {ht3opponent2}")
-
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-#  RESTRICTION FORMAT
+# RESTRICTION FORMAT
 
 @tree.command(name="restrictionformat", description="Generate a restriction format message")
 @app_commands.describe(
@@ -291,17 +268,11 @@ async def restriction_format_cmd(
     reason: str,
 ):
     await interaction.response.defer()
-
     import re
     mentioned_ids = re.findall(r"<@!?(\d+)>", discord_accounts)
-    mentions_display_parts = []
-    for uid in mentioned_ids:
-        mentions_display_parts.append(f"<@{uid}>")
-    mentions_display = ", ".join(mentions_display_parts) if mentions_display_parts else discord_accounts
-
+    mentions_display = ", ".join([f"<@{uid}>" for uid in mentioned_ids]) if mentioned_ids else discord_accounts
     ign_list = [ign.strip() for ign in igns.split(",")]
     uuid_lines = []
-
     async with aiohttp.ClientSession() as session:
         for ign in ign_list:
             async with session.get(f"https://api.mojang.com/users/profiles/minecraft/{ign}") as resp:
@@ -312,19 +283,11 @@ async def restriction_format_cmd(
                     uuid_lines.append(f"{ign} - `{uuid_formatted}`")
                 else:
                     uuid_lines.append(f"{ign} - `UUID not found`")
-
-    igns_display = ", ".join(ign_list)
-    uuid_block = "\n".join(uuid_lines)
-
-    msg = (
-        f"{mentions_display} - {igns_display} - Restricted for **{reason}**\n\n"
-        f"{uuid_block}"
-    )
-
+    msg = f"{mentions_display} - {', '.join(ign_list)} - Restricted for **{reason}**\n\n" + "\n".join(uuid_lines)
     await interaction.followup.send(content=msg, view=make_copy_button(msg))
 
 
-#  /LT2
+# /LT2
 
 @tree.command(name="lt2", description="Generate a Low Tier 2 result message")
 @app_commands.describe(
@@ -353,36 +316,26 @@ async def lt2_cmd(
     lt2score2: str = None,
 ):
     if lt2opponent1 and lt2score1:
-        final_scores = [lt2score1]
-        if lt2score2:
-            final_scores.append(lt2score2)
+        final_scores = [lt2score1] + ([lt2score2] if lt2score2 else [])
         result = promoted_or_failed(final_scores, "Low Tier 2")
     else:
-        final_scores = [ht3score1]
-        if ht3score2:
-            final_scores.append(ht3score2)
+        final_scores = [ht3score1] + ([ht3score2] if ht3score2 else [])
         result = promoted_or_failed(final_scores, "Low Tier 2")
-
-    lines = [
-        f"{player.mention} - {ign} - {result}",
-    ]
-
+    lines = [f"{player.mention} - {ign} - {result}"]
     if lt2opponent1 and lt2score1:
         lines.append("### __LT2 Fights:__")
         lines.append(f"> {win_or_loss(lt2score1)} vs. {lt2opponent1}")
         if lt2opponent2 and lt2score2:
             lines.append(f"> {win_or_loss(lt2score2)} vs. {lt2opponent2}")
-
     lines.append("### __HT3 Fights:__")
     lines.append(f"> {win_or_loss(ht3score1)} vs. {ht3opponent1}")
     if ht3opponent2 and ht3score2:
         lines.append(f"> {win_or_loss(ht3score2)} vs. {ht3opponent2}")
-
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-#  /HT2
+# /HT2
 
 @tree.command(name="ht2", description="Generate a High Tier 2 result message")
 @app_commands.describe(
@@ -411,36 +364,26 @@ async def ht2_cmd(
     ht2score2: str = None,
 ):
     if ht2opponent1 and ht2score1:
-        final_scores = [ht2score1]
-        if ht2score2:
-            final_scores.append(ht2score2)
+        final_scores = [ht2score1] + ([ht2score2] if ht2score2 else [])
         result = promoted_or_failed(final_scores, "High Tier 2")
     else:
-        final_scores = [lt2score1]
-        if lt2score2:
-            final_scores.append(lt2score2)
+        final_scores = [lt2score1] + ([lt2score2] if lt2score2 else [])
         result = promoted_or_failed(final_scores, "High Tier 2")
-
-    lines = [
-        f"{player.mention} - {ign} - {result}",
-    ]
-
+    lines = [f"{player.mention} - {ign} - {result}"]
     if ht2opponent1 and ht2score1:
         lines.append("### __HT2 Fights:__")
         lines.append(f"> {win_or_loss(ht2score1)} vs. {ht2opponent1}")
         if ht2opponent2 and ht2score2:
             lines.append(f"> {win_or_loss(ht2score2)} vs. {ht2opponent2}")
-
     lines.append("### __LT2 Fights:__")
     lines.append(f"> {win_or_loss(lt2score1)} vs. {lt2opponent1}")
     if lt2opponent2 and lt2score2:
         lines.append(f"> {win_or_loss(lt2score2)} vs. {lt2opponent2}")
-
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-#  /LT1
+# /LT1
 
 @tree.command(name="lt1", description="Generate a Low Tier 1 result message")
 @app_commands.describe(
@@ -477,49 +420,34 @@ async def lt1_cmd(
     lt1score2: str = None,
 ):
     if lt1opponent1 and lt1score1:
-        final_scores = [lt1score1]
-        if lt1score2:
-            final_scores.append(lt1score2)
+        final_scores = [lt1score1] + ([lt1score2] if lt1score2 else [])
     elif ht2opponent1 and ht2score1:
-        final_scores = [ht2score1]
-        if ht2score2:
-            final_scores.append(ht2score2)
+        final_scores = [ht2score1] + ([ht2score2] if ht2score2 else [])
     else:
-        final_scores = [lt2score1]
-        if lt2score2:
-            final_scores.append(lt2score2)
-
+        final_scores = [lt2score1] + ([lt2score2] if lt2score2 else [])
     result = promoted_or_failed(final_scores, "Low Tier 1")
-
-    lines = [
-        f"{player.mention} - {ign} - {result}",
-        "",
-    ]
-
+    lines = [f"{player.mention} - {ign} - {result}", ""]
     if lt1opponent1 and lt1score1:
         lines.append("**__LT1 Fights:__**")
         lines.append(f"> {win_or_loss(lt1score1)} vs. {lt1opponent1}")
         if lt1opponent2 and lt1score2:
             lines.append(f"> {win_or_loss(lt1score2)} vs. {lt1opponent2}")
         lines.append("")
-
     if ht2opponent1 and ht2score1:
         lines.append("**__HT2 Fights:__**")
         lines.append(f"> {win_or_loss(ht2score1)} vs. {ht2opponent1}")
         if ht2opponent2 and ht2score2:
             lines.append(f"> {win_or_loss(ht2score2)} vs. {ht2opponent2}")
         lines.append("")
-
     lines.append("**__LT2 Fights:__**")
     lines.append(f"> {win_or_loss(lt2score1)} vs. {lt2opponent1}")
     if lt2opponent2 and lt2score2:
         lines.append(f"> {win_or_loss(lt2score2)} vs. {lt2opponent2}")
-
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-#  /HT1
+# /HT1
 
 @tree.command(name="ht1", description="Generate a High Tier 1 result message")
 @app_commands.describe(
@@ -562,82 +490,56 @@ async def ht1_cmd(
     if ht1opponent1 and ht1score1:
         final_scores = [ht1score1]
     elif lt1opponent1 and lt1score1:
-        final_scores = [lt1score1]
-        if lt1score2:
-            final_scores.append(lt1score2)
+        final_scores = [lt1score1] + ([lt1score2] if lt1score2 else [])
     elif ht2opponent1 and ht2score1:
-        final_scores = [ht2score1]
-        if ht2score2:
-            final_scores.append(ht2score2)
+        final_scores = [ht2score1] + ([ht2score2] if ht2score2 else [])
     else:
-        final_scores = [lt2score1]
-        if lt2score2:
-            final_scores.append(lt2score2)
-
+        final_scores = [lt2score1] + ([lt2score2] if lt2score2 else [])
     result = promoted_or_failed(final_scores, "High Tier 1")
-
-    lines = [
-        f"{player.mention} - {ign} - {result}",
-        "",
-    ]
-
+    lines = [f"{player.mention} - {ign} - {result}", ""]
     if ht1opponent1 and ht1score1:
         lines.append("__**HT1 Fights:**__")
         lines.append(f"> {win_or_loss(ht1score1)} vs. {ht1opponent1}")
         lines.append("")
-
     if lt1opponent1 and lt1score1:
         lines.append("__**LT1 Fights:**__")
         lines.append(f"> {win_or_loss(lt1score1)} vs. {lt1opponent1}")
         if lt1opponent2 and lt1score2:
             lines.append(f"> {win_or_loss(lt1score2)} vs. {lt1opponent2}")
         lines.append("")
-
     if ht2opponent1 and ht2score1:
         lines.append("__**HT2 Fights:**__")
         lines.append(f"> {win_or_loss(ht2score1)} vs. {ht2opponent1}")
         if ht2opponent2 and ht2score2:
             lines.append(f"> {win_or_loss(ht2score2)} vs. {ht2opponent2}")
         lines.append("")
-
     lines.append("__**LT2 Fights:**__")
     lines.append(f"> {win_or_loss(lt2score1)} vs. {lt2opponent1}")
     if lt2opponent2 and lt2score2:
         lines.append(f"> {win_or_loss(lt2score2)} vs. {lt2opponent2}")
-
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-#  START UP — avec retry sur rate limit Cloudflare
-
-async def start_bot():
-    max_retries = 10
-    for attempt in range(max_retries):
-        try:
-            print(f"[EvomaGPT] Attempting to connect (attempt {attempt + 1}/{max_retries})...")
-            await client.start(TOKEN)
-            break  # connexion réussie, on sort de la boucle
-        except discord.errors.HTTPException as e:
-            if e.status == 429:
-                wait = 60 * (2 ** attempt)  # 60s, 120s, 240s, 480s...
-                print(f"[EvomaGPT] Rate limited by Cloudflare. Waiting {wait}s before retrying...")
-                await asyncio.sleep(wait)
-            else:
-                raise  # autre erreur HTTP, on la laisse remonter
-        except Exception as e:
-            print(f"[EvomaGPT] Unexpected error: {e}")
-            raise
-    else:
-        print("[EvomaGPT] Max retries reached. Could not connect to Discord.")
-
+# ON READY
 
 @client.event
+async def on_ready():
+    await tree.sync()
+    print(f"[EvomaGPT] Online as {client.user}")
+    print("[EvomaGPT] Commands synced globally.")
+
+
+# START UP
+
 async def start_bot():
+    if not TOKEN:
+        print("[EvomaGPT] ERREUR: DISCORD_TOKEN est None.")
+        return
     max_retries = 10
     for attempt in range(max_retries):
         try:
-            print(f"[EvomaGPT] Attempting to connect (attempt {attempt + 1}/{max_retries})...")
+            print(f"[EvomaGPT] Connecting (attempt {attempt + 1}/{max_retries})...")
             async with client:
                 await client.start(TOKEN)
             break
@@ -647,6 +549,7 @@ async def start_bot():
                 print(f"[EvomaGPT] Rate limited. Waiting {wait}s...")
                 await asyncio.sleep(wait)
             else:
+                print(f"[EvomaGPT] HTTP error {e.status}: {e}")
                 raise
         except Exception as e:
             print(f"[EvomaGPT] Unexpected error: {e}")
@@ -654,10 +557,17 @@ async def start_bot():
     else:
         print("[EvomaGPT] Max retries reached.")
 
+def run_bot():
+    asyncio.run(start_bot())
 
-@client.event
-@client.event
-async def on_ready():
-    await tree.sync()
-    print(f"EvomaGPT is online as {client.user}")
-    print("Commands synced globally.")
+# Flask bind le port en premier (Render l'exige)
+# Le bot tourne dans un thread séparé
+keep_alive()
+print("[EvomaGPT] Flask started, launching bot thread...")
+bot_thread = threading.Thread(target=run_bot)
+bot_thread.daemon = True
+bot_thread.start()
+
+# Garde le process principal vivant
+while True:
+    time.sleep(60)
