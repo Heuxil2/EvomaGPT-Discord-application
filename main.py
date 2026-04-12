@@ -4,7 +4,7 @@ import aiohttp
 from flask import Flask
 from threading import Thread
 import os
-TOKEN = os.environ.get("MTQ5MDA0NzQ3MTA0NzU0MDg4Ng.Gg7VZj.kKQq86RVJk1sTZjnR3BEJfsL9phzybJ-loVuHE")
+TOKEN = os.environ.get("DISCORD_TOKEN")
 
 #  for UptimeRobot
 
