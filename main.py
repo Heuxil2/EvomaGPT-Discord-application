@@ -4,6 +4,7 @@ import aiohttp
 from flask import Flask
 from threading import Thread
 import os
+import time
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
 #  for UptimeRobot
@@ -617,5 +618,6 @@ async def on_ready():
     print(f"Commands synced globally.")
 
 
+time.sleep(5)
 keep_alive()
 client.run(TOKEN)
