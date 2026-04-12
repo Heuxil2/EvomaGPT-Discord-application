@@ -5,6 +5,7 @@ from flask import Flask
 from threading import Thread
 import os
 import time
+import asyncio
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
 #  for UptimeRobot
@@ -169,7 +170,6 @@ async def uuid_cmd(interaction: discord.Interaction, username: str):
 
 
 #  EVAL KIT RULES
-
 
 EVAL_KIT_TEXT = (
     "## <:VerifiedTester:1490523036791603230> **__Tester Evaluation (Below HT3) Limits & Rules__**\n"
@@ -518,6 +518,7 @@ async def lt1_cmd(
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
+
 #  /HT1
 
 @tree.command(name="ht1", description="Generate a High Tier 1 result message")
@@ -607,7 +608,29 @@ async def ht1_cmd(
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
-#  start up
+
+#  START UP — avec retry sur rate limit Cloudflare
+
+async def start_bot():
+    max_retries = 10
+    for attempt in range(max_retries):
+        try:
+            print(f"[EvomaGPT] Attempting to connect (attempt {attempt + 1}/{max_retries})...")
+            await client.start(TOKEN)
+            break  # connexion réussie, on sort de la boucle
+        except discord.errors.HTTPException as e:
+            if e.status == 429:
+                wait = 60 * (2 ** attempt)  # 60s, 120s, 240s, 480s...
+                print(f"[EvomaGPT] Rate limited by Cloudflare. Waiting {wait}s before retrying...")
+                await asyncio.sleep(wait)
+            else:
+                raise  # autre erreur HTTP, on la laisse remonter
+        except Exception as e:
+            print(f"[EvomaGPT] Unexpected error: {e}")
+            raise
+    else:
+        print("[EvomaGPT] Max retries reached. Could not connect to Discord.")
+
 
 @client.event
 async def on_ready():
@@ -618,6 +641,5 @@ async def on_ready():
     print(f"Commands synced globally.")
 
 
-time.sleep(5)
 keep_alive()
-client.run(TOKEN)
+asyncio.run(start_bot())
