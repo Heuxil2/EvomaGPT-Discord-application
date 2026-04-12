@@ -633,13 +633,31 @@ async def start_bot():
 
 
 @client.event
+async def start_bot():
+    max_retries = 10
+    for attempt in range(max_retries):
+        try:
+            print(f"[EvomaGPT] Attempting to connect (attempt {attempt + 1}/{max_retries})...")
+            async with client:
+                await client.start(TOKEN)
+            break
+        except discord.errors.HTTPException as e:
+            if e.status == 429:
+                wait = 60 * (2 ** attempt)
+                print(f"[EvomaGPT] Rate limited. Waiting {wait}s...")
+                await asyncio.sleep(wait)
+            else:
+                raise
+        except Exception as e:
+            print(f"[EvomaGPT] Unexpected error: {e}")
+            raise
+    else:
+        print("[EvomaGPT] Max retries reached.")
+
+
+@client.event
+@client.event
 async def on_ready():
     await tree.sync()
-    TEST_GUILD = discord.Object(id=1477430339663298701)
-    await tree.sync(guild=TEST_GUILD)
     print(f"EvomaGPT is online as {client.user}")
-    print(f"Commands synced globally.")
-
-
-keep_alive()
-asyncio.run(start_bot())
+    print("Commands synced globally.")
