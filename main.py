@@ -498,42 +498,42 @@ async def ht1_cmd(
 @client.event
 async def on_ready():
     await tree.sync()
-    print(f"connecté en tant que {client.user}")
-    print("commands sync")
+    print(f"logged in as {client.user}")
+    print("commands synced")
 
 
 async def start_bot():
     if not TOKEN:
-        print("pas de token, jpeux pas start")
+        print("no token, cant start")
         return
 
     attempt = 0
     while attempt < 10:
         try:
-            print(f"connexion... (essai {attempt + 1}/10)")
+            print(f"connecting... (try {attempt + 1}/10)")
             async with client:
                 await client.start(TOKEN)
             return
         except discord.errors.HTTPException as e:
             if e.status == 429:
                 wait = 60 * (2 ** attempt)
-                print(f"rate limit, j'attends {wait}s")
+                print(f"rate limited, waiting {wait}s")
                 await asyncio.sleep(wait)
                 attempt += 1
             else:
-                print(f"erreur http {e.status}: {e}")
+                print(f"http error {e.status}: {e}")
                 raise
         except Exception as e:
-            print(f"erreur: {e}")
+            print(f"error: {e}")
             raise
 
-    print("trop d'essais la, jabandonne")
+    print("too many tries")
 
 def run_bot():
     asyncio.run(start_bot())
 
 keep_alive()
-print("flask up, je start le bot")
+print("flask up, starting bot")
 bot_thread = threading.Thread(target=run_bot)
 bot_thread.daemon = True
 bot_thread.start()
