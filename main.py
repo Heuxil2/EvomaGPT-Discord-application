@@ -10,13 +10,11 @@ import time
 
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
-# Flask pour UptimeRobot / Render
-
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "The bot is online"
+    return "bot online"
 
 def run_flask():
     app.run(host='0.0.0.0', port=8080)
@@ -34,8 +32,6 @@ tree = app_commands.CommandTree(
     allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True),
 )
 
-
-# STATIC LINK COMMANDS
 
 @tree.command(name="discord", description="Get the RankedTiers Discord invite link")
 async def discord_cmd(interaction: discord.Interaction):
@@ -81,8 +77,6 @@ async def ip_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 
-# DRAIN KIT RULES
-
 DRAIN_KIT_TEXT = (
     "## <:shulkerbox:1490522294555250688> **__HT3+ Testing Limits & Rules__** <:shulkerbox:1490522294555250688>\n"
     "<:totem:1490522298460016750> - 8 Totems of Undying\n"
@@ -109,8 +103,6 @@ async def drain_kit_rules_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(DRAIN_KIT_TEXT)
 
 
-# SERVER AD
-
 SERVER_AD_TEXT = """#  <:Ranked_Tiers:1490523311082569909>  **[1.21+] RankedTiers Network | EU & NA Crystal PvP & Tier Testing** <:Ranked_Tiers:1490523311082569909>
 
 > <:VerifiedTester:1490523036791603230> - Active Tier Testing & Support
@@ -130,8 +122,6 @@ NA: `na.Rankedtiers.net`
 async def server_ad_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(SERVER_AD_TEXT)
 
-
-# UUID LOOKUP
 
 @tree.command(name="uuid", description="Look up a Minecraft player's UUID by username")
 @app_commands.describe(username="The Minecraft username to look up")
@@ -153,8 +143,6 @@ async def uuid_cmd(interaction: discord.Interaction, username: str):
             else:
                 await interaction.followup.send(embed=discord.Embed(description="Mojang API error. Try again later.", color=0xFF0000))
 
-
-# EVAL KIT RULES
 
 EVAL_KIT_TEXT = (
     "## <:VerifiedTester:1490523036791603230> **__Tester Evaluation (Below HT3) Limits & Rules__**\n"
@@ -178,8 +166,6 @@ EVAL_KIT_TEXT = (
 async def eval_kit_rules_cmd(interaction: discord.Interaction):
     await interaction.response.send_message(EVAL_KIT_TEXT)
 
-
-# HELPERS
 
 def win_or_loss(score: str) -> str:
     try:
@@ -217,8 +203,6 @@ def promoted_or_failed(scores: list[str], tier_name: str) -> str:
         return f"**Promoted to {tier_name}**"
 
 
-# /HT3
-
 @tree.command(name="ht3", description="Generate a High Tier 3 result message")
 @app_commands.describe(
     player="The player (Discord user)",
@@ -253,8 +237,6 @@ async def ht3_cmd(
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-# RESTRICTION FORMAT
-
 @tree.command(name="restrictionformat", description="Generate a restriction format message")
 @app_commands.describe(
     igns="In-game name(s) of the player(s), separated by commas",
@@ -286,8 +268,6 @@ async def restriction_format_cmd(
     msg = f"{mentions_display} - {', '.join(ign_list)} - Restricted for **{reason}**\n\n" + "\n".join(uuid_lines)
     await interaction.followup.send(content=msg, view=make_copy_button(msg))
 
-
-# /LT2
 
 @tree.command(name="lt2", description="Generate a Low Tier 2 result message")
 @app_commands.describe(
@@ -335,8 +315,6 @@ async def lt2_cmd(
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-# /HT2
-
 @tree.command(name="ht2", description="Generate a High Tier 2 result message")
 @app_commands.describe(
     player="The player (Discord user)",
@@ -382,8 +360,6 @@ async def ht2_cmd(
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
-
-# /LT1
 
 @tree.command(name="lt1", description="Generate a Low Tier 1 result message")
 @app_commands.describe(
@@ -446,8 +422,6 @@ async def lt1_cmd(
     msg = "\n".join(lines)
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
-
-# /HT1
 
 @tree.command(name="ht1", description="Generate a High Tier 1 result message")
 @app_commands.describe(
@@ -521,53 +495,48 @@ async def ht1_cmd(
     await interaction.response.send_message(content=msg, view=make_copy_button(msg))
 
 
-# ON READY
-
 @client.event
 async def on_ready():
     await tree.sync()
-    print(f"[EvomaGPT] Online as {client.user}")
-    print("[EvomaGPT] Commands synced globally.")
+    print(f"connecté en tant que {client.user}")
+    print("commands sync")
 
-
-# START UP
 
 async def start_bot():
     if not TOKEN:
-        print("[EvomaGPT] ERREUR: DISCORD_TOKEN est None.")
+        print("pas de token, jpeux pas start")
         return
-    max_retries = 10
-    for attempt in range(max_retries):
+
+    attempt = 0
+    while attempt < 10:
         try:
-            print(f"[EvomaGPT] Connecting (attempt {attempt + 1}/{max_retries})...")
+            print(f"connexion... (essai {attempt + 1}/10)")
             async with client:
                 await client.start(TOKEN)
-            break
+            return
         except discord.errors.HTTPException as e:
             if e.status == 429:
                 wait = 60 * (2 ** attempt)
-                print(f"[EvomaGPT] Rate limited. Waiting {wait}s...")
+                print(f"rate limit, j'attends {wait}s")
                 await asyncio.sleep(wait)
+                attempt += 1
             else:
-                print(f"[EvomaGPT] HTTP error {e.status}: {e}")
+                print(f"erreur http {e.status}: {e}")
                 raise
         except Exception as e:
-            print(f"[EvomaGPT] Unexpected error: {e}")
+            print(f"erreur: {e}")
             raise
-    else:
-        print("[EvomaGPT] Max retries reached.")
+
+    print("trop d'essais la, jabandonne")
 
 def run_bot():
     asyncio.run(start_bot())
 
-# Flask bind le port en premier (Render l'exige)
-# Le bot tourne dans un thread séparé
 keep_alive()
-print("[EvomaGPT] Flask started, launching bot thread...")
+print("flask up, je start le bot")
 bot_thread = threading.Thread(target=run_bot)
 bot_thread.daemon = True
 bot_thread.start()
 
-# Garde le process principal vivant
 while True:
     time.sleep(60)
